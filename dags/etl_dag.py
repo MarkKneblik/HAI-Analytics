@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from etl_modules.extract import extract
 from etl_modules.transform import transform
 from etl_modules.load import load
-import pandas as pd
 
 # Default arguments for the DAG
 default_args = {
@@ -27,7 +26,7 @@ params = {
 with DAG(
     dag_id = 'DAG-1',
     default_args = default_args,
-    schedule_interval = '@monthly',
+    schedule = '@monthly',
     catchup = False,
     max_active_runs = 1
 ) as etl_dag:
@@ -41,16 +40,16 @@ with DAG(
         kwargs['ti'].xcom_push(key = 'dataframe', value = df)
         return df
 
-    # Create transform task
-    def transform_task(**kwargs):
-        # Pull the DataFrame from XCom (from extract task)
-        ti = kwargs['ti']
-        df = ti.xcom_pull(task_ids = 'extract', key = 'dataframe')
-        if df is not None:
-            transformed_df = transform(df)  # Transform data
-            # Push the transformed data to XCom
-            ti.xcom_push(key = 'transformed_dataframe', value = transformed_df)
-            return transformed_df
+    # # Create transform task
+    # def transform_task(**kwargs):
+    #     # Pull the DataFrame from XCom (from extract task)
+    #     ti = kwargs['ti']
+    #     df = ti.xcom_pull(task_ids = 'extract', key = 'dataframe')
+    #     if df is not None:
+    #         transformed_df = transform(df)  # Transform data
+    #         # Push the transformed data to XCom
+    #         ti.xcom_push(key = 'transformed_dataframe', value = transformed_df)
+    #         return transformed_df
 
     # # Create load task
     # def load_task(**kwargs):
@@ -67,10 +66,10 @@ with DAG(
         python_callable = extract_task,
     )
 
-    transform = PythonOperator(
-        task_id = 'transform',
-        python_callable = transform_task,
-    )
+    # transform = PythonOperator(
+    #     task_id = 'transform',
+    #     python_callable = transform_task,
+    # )
 
     # load = PythonOperator(
     #     task_id = 'load',
@@ -78,4 +77,4 @@ with DAG(
     # )
 
     # Set up dependencies
-    extract >> transform #>> load
+    extract #>> transform >> load
