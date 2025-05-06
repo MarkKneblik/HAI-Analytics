@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
+import logging
 from datetime import datetime, timedelta
 from etl_modules.extract import extract
 from etl_modules.transform import transform
@@ -10,7 +11,7 @@ default_args = {
     'owner': 'airflow',
     'start_date': datetime(2025, 5, 4),
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=1),
 }
 
 # Define the API endpoint for the HAI dataset
@@ -35,21 +36,34 @@ with DAG(
     def extract_task(**kwargs):
         # Fetch data using extract function and return a pandas DataFrame
         df = extract(api_url, params)  # Extract returns a DataFrame
-        print(df.head())
         # Push the DataFrame to XCom for the transform task
         kwargs['ti'].xcom_push(key = 'dataframe', value = df)
         return df
 
-    # # Create transform task
-    # def transform_task(**kwargs):
-    #     # Pull the DataFrame from XCom (from extract task)
-    #     ti = kwargs['ti']
-    #     df = ti.xcom_pull(task_ids = 'extract', key = 'dataframe')
-    #     if df is not None:
-    #         transformed_df = transform(df)  # Transform data
-    #         # Push the transformed data to XCom
-    #         ti.xcom_push(key = 'transformed_dataframe', value = transformed_df)
-    #         return transformed_df
+    def transform_task(**kwargs):
+        # Get the current date and time for dynamic log filename
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        log_filename = f"transform_log_{current_time}.log"
+        
+        # Set up logging to this file
+        logging.basicConfig(filename=log_filename, level=logging.INFO)
+        
+        # Pull the DataFrame from XCom (from extract task)
+        task_instance = kwargs['ti']
+        df = task_instance.xcom_pull(task_ids='extract', key='dataframe')
+        
+        if df is not None:
+            transformed_df = transform(df)  # Transform data
+            # Push the transformed data to XCom
+            task_instance.xcom_push(key='transformed_dataframe', value=transformed_df)
+            
+            # Log the transformed data using Python's logging
+            logging.info(f"Transformed Data:\n{transformed_df}")
+            
+            return transformed_df
+        else:
+            logging.error("No data received from the extract task.")
+            return None
 
     # # Create load task
     # def load_task(**kwargs):
@@ -61,15 +75,15 @@ with DAG(
     #     else:
     #         raise ValueError("No transformed data available for loading.")
 
-    extract = PythonOperator(
+    extract_task_operator = PythonOperator(
         task_id = 'extract',
         python_callable = extract_task,
     )
 
-    # transform = PythonOperator(
-    #     task_id = 'transform',
-    #     python_callable = transform_task,
-    # )
+    transform_task_operator = PythonOperator(
+        task_id = 'transform',
+        python_callable = transform_task,
+    )
 
     # load = PythonOperator(
     #     task_id = 'load',
@@ -77,4 +91,4 @@ with DAG(
     # )
 
     # Set up dependencies
-    extract #>> transform >> load
+    extract_task_operator >> transform_task_operator #>> load

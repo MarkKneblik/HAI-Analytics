@@ -15,3 +15,9 @@ venv/
 
 # Ignore IDE configuration files
 .vscode/
+
+# Ignore SQLite database files
+airflow.db
+airflow.db-journal
+*.sqlite
+*.sqlite3
