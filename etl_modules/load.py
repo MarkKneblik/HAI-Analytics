@@ -1,16 +1,29 @@
 # etl_modules/load.py
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import SQLAlchemyError
+import pandas as pd
+from snowflake.snowpark import Session
 
 def load(df):
-    # Connect to local PostgreSQL database
-    engine = create_engine("postgresql+psycopg2://postgres:Bomber21@host.docker.internal:5432/CLABSI")
+    # Define connection parameters
+    connection_parameters = {
+        "account": "CJSOHEE-QX70579",       
+        "user": "AIRFLOW_USER",              
+        "password": "airflow",              
+        "database": "HAI_DATABASE",
+        "schema": "RAW",
+        "warehouse": "COMPUTE_WH",
+        "role": "AIRFLOW_ROLE"
+    }
 
-    # Test connection to local PostgreSQL database using the SQLAlchemy engine
-    try:
-        with engine.connect() as connection:
-            result = connection.execute(text("SELECT 1"))
-            print("Connection successful:", result.scalar() == 1)
-            df.to_sql('cms_hai_data', engine, if_exists='replace', index=False)
-    except SQLAlchemyError as error:
-        print("Connection failed:", str(error))
+    # Create a Snowflake session
+    session = Session.builder.configs(connection_parameters).create()
+
+    # Define the table name in Snowflake
+    table_name = "HAI_DATA"
+
+    # Write the DataFrame to Snowflake, auto-creating the table if needed
+    session.write_pandas(df, table_name, auto_create_table=False)
+
+    print(f"Inserted {len(df)} rows successfully.")
+
+    # Close the session
+    session.close()

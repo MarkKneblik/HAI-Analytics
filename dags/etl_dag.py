@@ -55,7 +55,7 @@ with DAG(
         if df is not None:
             transformed_df = transform(df)  # Transform data
             # Push the transformed data to XCom
-            task_instance.xcom_push(key='transformed_dataframe', value=transformed_df)
+            task_instance.xcom_push(key = 'transformed_dataframe', value = transformed_df)
             
             # Log the transformed data using Python's logging
             logging.info(f"Transformed Data:\n{transformed_df}")
@@ -65,15 +65,15 @@ with DAG(
             logging.error("No data received from the extract task.")
             return None
 
-    # # Create load task
-    # def load_task(**kwargs):
-    #     # Pull the transformed data from XCom (from transform task)
-    #     ti = kwargs['ti']
-    #     transformed_data = ti.xcom_pull(task_ids = 'transform', key = 'transformed_dataframe')
-    #     if transformed_data is not None:
-    #         load(transformed_data)  # Load transformed data into PostgreSQL database
-    #     else:
-    #         raise ValueError("No transformed data available for loading.")
+    # Create load task
+    def load_task(**kwargs):
+        # Pull the transformed data from XCom (from transform task)
+        ti = kwargs['ti']
+        transformed_data = ti.xcom_pull(task_ids = 'transform', key = 'transformed_dataframe')
+        if transformed_data is not None:
+            load(transformed_data)  # Load transformed data into Snowflake warehouse
+        else:
+            raise ValueError("No transformed data available for loading.")
 
     extract_task_operator = PythonOperator(
         task_id = 'extract',
@@ -85,10 +85,10 @@ with DAG(
         python_callable = transform_task,
     )
 
-    # load = PythonOperator(
-    #     task_id = 'load',
-    #     python_callable = load_task,
-    # )
+    load_task_operator = PythonOperator(
+        task_id = 'load',
+        python_callable = load_task,
+    )
 
     # Set up dependencies
-    extract_task_operator >> transform_task_operator #>> load
+    extract_task_operator >> transform_task_operator >> load_task_operator
