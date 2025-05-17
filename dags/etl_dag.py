@@ -11,7 +11,7 @@ default_args = {
     'owner': 'airflow',
     'start_date': datetime(2025, 5, 4),
     'retries': 1,
-    'retry_delay': timedelta(minutes=1),
+    'retry_delay': timedelta(seconds=1),
 }
 
 # Define the API endpoint for the HAI dataset

@@ -25,4 +25,7 @@ def transform(df):
     # Drop rows with critical missing values
     df.dropna(subset=['facility_id', 'zip_code', 'score'], inplace=True)
     
+    # Convert all column headers to uppercase to match Snowflake 
+    df.columns = df.columns.str.upper()
+    
     return df

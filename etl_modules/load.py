@@ -1,29 +1,33 @@
-# etl_modules/load.py
 import pandas as pd
 from snowflake.snowpark import Session
 
 def load(df):
-    # Define connection parameters
     connection_parameters = {
-        "account": "CJSOHEE-QX70579",       
-        "user": "AIRFLOW_USER",              
-        "password": "airflow",              
+        "account": "CJSOHEE-QX70579",
+        "user": "AIRFLOW_USER",
+        "password": "airflow",
+        "role": "AIRFLOW_ROLE",
+        "warehouse": "COMPUTE_WH",
         "database": "HAI_DATABASE",
         "schema": "RAW",
-        "warehouse": "COMPUTE_WH",
-        "role": "AIRFLOW_ROLE"
     }
 
-    # Create a Snowflake session
+    # Create Snowflake session
     session = Session.builder.configs(connection_parameters).create()
 
-    # Define the table name in Snowflake
-    table_name = "HAI_DATA"
+    # Ensure context is active in case config didn't persist it
+    session.sql("USE DATABASE HAI_DATABASE").collect()
+    session.sql("USE SCHEMA RAW").collect()
 
-    # Write the DataFrame to Snowflake, auto-creating the table if needed
-    session.write_pandas(df, table_name, auto_create_table=False)
+    # Write DataFrame to Snowflake
+    session.write_pandas(
+        df, 
+        table_name="HAI_DATA", 
+        database="HAI_DATABASE", 
+        schema="RAW", 
+        auto_create_table=False
+    )
 
     print(f"Inserted {len(df)} rows successfully.")
 
-    # Close the session
     session.close()
