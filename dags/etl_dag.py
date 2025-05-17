@@ -25,7 +25,7 @@ params = {
 
 # Create ETL DAG
 with DAG(
-    dag_id = 'DAG-1',
+    dag_id = 'ETL-DAG',
     default_args = default_args,
     schedule = '@monthly',
     catchup = False,

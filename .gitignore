@@ -21,3 +21,14 @@ airflow.db
 airflow.db-journal
 *.sqlite
 *.sqlite3
+
+# dbt ignores
+dbt/target/
+dbt/dbt_modules/
+dbt/.dbt/
+dbt/logs/
+dbt/.pytest_cache/
+dbt/venv/
+dbt/.env
+dbt/.vscode/
+dbt/.idea/
