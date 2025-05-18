@@ -1,7 +1,0 @@
-version: 2
-
-sources:
-  - name: HAI_DATABASE
-    schema: RAW
-    tables:
-      - name: HAI_DATA

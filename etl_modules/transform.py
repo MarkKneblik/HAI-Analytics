@@ -8,12 +8,13 @@ def clean_zip(zip_code):
 
 def transform(df):
     # Drop unnecessary location info
-    df.drop(columns=['address', 'citytown', 'state', 'countyparish', 'telephone_number', 'footnote', 'start_date', 'end_date'], inplace=True)
+    df.drop(columns=['address', 'citytown', 'countyparish', 'telephone_number', 'footnote', 'start_date', 'end_date'], inplace=True)
     
     # Convert column types
     df['facility_id'] = df['facility_id'].astype(str)
     df['measure_id'] = df['measure_id'].astype(str)
     df['facility_name'] = df['facility_name'].astype(str)
+    df['state'] = df['state'].astype(str)
     df['measure_name'] = df['measure_name'].astype(str)
     df['compared_to_national'] = df['compared_to_national'].astype(str)
     df['zip_code'] = df['zip_code'].astype(str) 
