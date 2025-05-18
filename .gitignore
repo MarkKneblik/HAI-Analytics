@@ -22,13 +22,13 @@ airflow.db-journal
 *.sqlite
 *.sqlite3
 
-# dbt ignores
-dbt/target/
-dbt/dbt_modules/
-dbt/.dbt/
-dbt/logs/
-dbt/.pytest_cache/
-dbt/venv/
-dbt/.env
-dbt/.vscode/
-dbt/.idea/
+# Ignore dbt compiled and run artifacts
+dbt/snowflake_transformations/target/
+dbt/snowflake_transformations/logs/
+
+# Ignore Python cache files if any
+dbt/snowflake_transformations/__pycache__/
+dbt/snowflake_transformations/*.pyc
+
+# Ignore any local environment files inside the project
+dbt/snowflake_transformations/.env

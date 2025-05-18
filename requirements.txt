@@ -3,3 +3,7 @@ requests
 sqlalchemy
 psycopg2-binary
 snowflake-snowpark-python
+
+# dbt packages
+dbt-core
+dbt-snowflake

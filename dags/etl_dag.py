@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 import logging
+import subprocess
 from datetime import datetime, timedelta
 from etl_modules.extract import extract
 from etl_modules.transform import transform
@@ -74,6 +75,29 @@ with DAG(
             load(transformed_data)  # Load transformed data into Snowflake warehouse
         else:
             raise ValueError("No transformed data available for loading.")
+    
+    # Create dbt task
+    def run_dbt_task():
+        # Variable to hold the directory that contains dbt project
+        dbt_project_dir = '/opt/airflow/dbt/snowflake_transformations'
+        
+        try:
+            # Call dbt run and capture output for logging purposes
+            result = subprocess.run(
+                ['dbt', 'run'],
+                cwd = dbt_project_dir,
+                capture_output = True,
+                text = True,
+                check = True
+            )
+            print("DBT Output:\n", result.stdout)
+            if result.stderr:
+                print("DBT Errors:\n", result.stderr)
+        except subprocess.CalledProcessError as e:
+            print("DBT Failed!")
+            print("STDOUT:\n", e.stdout)
+            print("STDERR:\n", e.stderr)
+            raise
 
     extract_task_operator = PythonOperator(
         task_id = 'extract',
@@ -89,6 +113,11 @@ with DAG(
         task_id = 'load',
         python_callable = load_task,
     )
+    
+    dbt_task_operator = PythonOperator(
+    task_id = 'run_dbt',
+    python_callable = run_dbt_task,
+    )
 
     # Set up dependencies
-    extract_task_operator >> transform_task_operator >> load_task_operator
+    extract_task_operator >> transform_task_operator >> load_task_operator >> dbt_task_operator
