@@ -1,10 +1,10 @@
--- models/analytics/clabsi_by_state.sql
+-- models/analytics/cauti_by_state.sql
 
 {{ config(schema = 'ANALYTICS') }}
 
 /*
     For each state, this model calculates the total number of unique healthcare facilities reporting
-    the Standardized Infection Ratio (SIR) for CLABSI (Central Line-Associated Bloodstream Infection),
+    the Standardized Infection Ratio (SIR) for CAUTI (Central Line-Associated Bloodstream Infection),
     counts how many facilities perform worse than the national benchmark, 
     and computes the percentage of worse-performing facilities per state.
 
@@ -14,19 +14,19 @@
     Note: States with no facilities worse than the national benchmark will show NULL worse_count.
 */
 
--- Filter the dataset to only include CLABSI records with Standardized Infection Ratio (SIR) metric (MEASURE_ID = 'HAI_1_SIR')
-WITH sir_clabsi AS (
+-- Filter the dataset to only include CAUTI records with Standardized Infection Ratio (SIR) metric (MEASURE_ID = 'HAI_1_SIR')
+WITH sir_cauti AS (
     SELECT *
     FROM {{ ref('int_hai_data_enriched') }}
-    WHERE MEASURE_ID = 'HAI_1_SIR'
+    WHERE MEASURE_ID = 'HAI_2_SIR'
 ),
 
--- Calculate total unique facilities per state reporting SIR for CLABSI
+-- Calculate total unique facilities per state reporting SIR for CAUTI
 facility_counts AS (
     SELECT 
         STATE,
         COUNT(DISTINCT FACILITY_ID) AS facility_count
-    FROM sir_clabsi
+    FROM sir_cauti
     GROUP BY STATE
 ),
 
@@ -35,7 +35,7 @@ worse_facilities AS (
     SELECT 
         STATE,
         COUNT(DISTINCT FACILITY_ID) AS worse_count
-    FROM sir_clabsi
+    FROM sir_cauti
     WHERE COMPARED_TO_NATIONAL = 'Worse than the National Benchmark'
     GROUP BY STATE
 )
