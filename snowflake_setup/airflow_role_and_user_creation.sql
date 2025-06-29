@@ -1,0 +1,16 @@
+USE ROLE ACCOUNTADMIN;
+
+-- 1. Create a role for Airflow
+CREATE OR REPLACE ROLE AIRFLOW_ROLE;
+
+-- 2. Create a user and assign AIRFLOW_ROLE as default
+CREATE OR REPLACE USER AIRFLOW_USER
+  PASSWORD = 'airflow'
+  DEFAULT_ROLE = AIRFLOW_ROLE
+  DEFAULT_WAREHOUSE = COMPUTE_WH;
+
+-- 3. Assign airflow role to the user
+GRANT ROLE AIRFLOW_ROLE TO USER AIRFLOW_USER;
+
+-- 4. Assign airflow role to ACCOUNTADMIN for convenience
+GRANT ROLE AIRFLOW_ROLE TO ROLE ACCOUNTADMIN;

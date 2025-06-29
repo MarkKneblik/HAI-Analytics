@@ -1,4 +1,3 @@
-import pandas as pd
 from airflow.hooks.base import BaseHook
 from snowflake.snowpark import Session
 from cryptography.hazmat.primitives import serialization
