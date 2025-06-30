@@ -32,3 +32,6 @@ dbt/snowflake_transformations/*.pyc
 
 # Ignore any local environment files inside the project
 dbt/snowflake_transformations/.env
+
+# Ignore private keys
+keys/*
