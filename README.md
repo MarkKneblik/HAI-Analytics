@@ -43,3 +43,10 @@ Due to their high acuity and significant infection risks, this analysis pays par
 - dbt  
 - Tableau  
 - Apache Airflow
+- ChatGPT (used for literature research and sourcing relevant reports)
+
+## Use of AI Tools
+
+During this project, I used ChatGPT as a research assistant to help source relevant reports, studies, and surveys related to healthcare-associated infections and regional healthcare challenges. By carefully evaluating these resources (including their timelines to ensure consistency with the infection data), I generated insights grounded in my clinical background and data analysis.
+
+This approach allowed me to efficiently gather domain-specific information, which I then analyzed to generate insights and recommendations.
