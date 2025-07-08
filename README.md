@@ -11,6 +11,12 @@ Using publicly available CMS data, this project aggregates SIR metrics at the ZI
 
 Due to their high acuity and significant infection risks, this analysis pays particular attention to the Midwest and Puerto Rico regions.
 
+## ETL Workflow Demo
+
+This short video walkthrough shows the ETL pipeline in action:  
+
+[▶  Watch the Demo on Loom](https://www.loom.com/share/57b8a13dae534bafa92ac2819743cd79?sid=82f1a643-746e-4239-bc04-60506c2ed37b)
+
 ## Key Insights
 
 - CLABSI issues are more widespread and affect more ZIP codes compared to CAUTI.  
